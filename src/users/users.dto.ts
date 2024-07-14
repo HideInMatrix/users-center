@@ -1,10 +1,15 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 export class UsersDto {
-  public id: string;
+  public id: number;
 
   @MinLength(2)
   @IsString()
-  public name: string;
+  @IsOptional()
+  public name: string | null;
+
   @IsString()
   public email: string;
+
+  @IsString()
+  public password: string;
 }
