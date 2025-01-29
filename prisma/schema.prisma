@@ -10,13 +10,30 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  name     String?
-  password String
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum UserStatus {
+  UNVERIFIED
+  VERIFIED
+  BANNED
+}
+
+model users {
+  id        BigInt     @id
+  name      String
+  email     String     @unique
+  avatar    String     @default("")
+  password  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  role      UserRole   @default(USER)
+  status    UserStatus @default(UNVERIFIED)
 }
