@@ -1,34 +1,44 @@
 import {
-  IsEnum,
+  IsEmail,
+  IsNotEmpty,
   IsOptional,
   IsString,
-  IsEmail,
   MinLength,
 } from 'class-validator';
-import { UserRole, UserStatus } from './user.enum'; // 你需要自己定义枚举文件
-
+import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from '@prisma/client';
 export class UsersDto {
-  @IsOptional() // id 是自动生成的，创建时不需要传递
-  public id: BigInt;
+  public id: string;
 
+  @ApiProperty({ description: "User's full name", example: 'John Doe' })
+  @IsOptional()
   @MinLength(2)
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   public name: string;
 
-  @IsEmail() // 验证邮箱格式
-  @IsString()
+  @ApiProperty({
+    description: "User's email address",
+    example: 'john.doe@example.com',
+  })
+  @IsEmail()
+  @IsNotEmpty()
   public email: string;
 
-  @MinLength(6) // 假设密码长度最少6个字符
+  @ApiProperty({
+    description: "User's password (min 8 characters)",
+    example: 'Password123',
+    minLength: 8,
+  })
   @IsString()
+  @MinLength(8)
+  @IsNotEmpty()
   public password: string;
 
-  @IsEnum(UserRole) // 验证角色字段
-  @IsOptional()
-  public role: UserRole = UserRole.USER; // 默认值为 USER
-
-  @IsEnum(UserStatus) // 验证状态字段
-  @IsOptional()
-  public status: UserStatus = UserStatus.UNVERIFIED; // 默认值为 UNVERIFIED
+  @ApiProperty({
+    description: "User's role",
+    example: 'USER',
+    default: 'USER'
+  })
+  public role: UserRole = UserRole.USER
 }

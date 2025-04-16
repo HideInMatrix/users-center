@@ -1,22 +1,30 @@
+import { UsersModule } from '@/users/users.module';
 import { Module } from '@nestjs/common';
-
-import { PrismaService } from '@/prisma/prisma.service';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { UserService } from '@/users/users.service';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
+import { AuthService } from './auth.service';
+import { JwtMiddleware } from './jwt.middleware';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
+    UsersModule,
     JwtModule.register({
-      global: true,
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '24h' },
+      secret: process.env.JWT_SECRET || 'your-secret-key',
+      signOptions: { expiresIn: '1d' },
     }),
   ],
   controllers: [AuthController],
-  providers: [PrismaService, AuthService, UserService],
-  exports: [],
+  providers: [
+    AuthService,
+    {
+      provide: JwtMiddleware,
+      useFactory: () => {
+        return new JwtMiddleware({
+          secret: process.env.JWT_SECRET || 'your-secret-key',
+        });
+      },
+    },
+  ],
+  exports: [AuthService, JwtMiddleware],
 })
 export class AuthModule {}
