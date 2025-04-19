@@ -12,12 +12,13 @@ import { RolesGuard } from '@/auth/roles.guard';
 import { UserRole } from '@prisma/client';
 import { UsersDto } from './users.dto';
 import { ResponseDto } from '@/vo/response.dto';
+import { MailService } from '@/mail/mail.service';
 
 @ApiBearerAuth()
 @ApiTags('Users')
 @Controller('/users')
 export class UsersController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService,private readonly mailService: MailService) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' }) // 该接口的描述
@@ -33,7 +34,11 @@ export class UsersController {
     type: ResponseDto,
   }) // 错误响应的描述
   async register(@Body() userDto: UsersDto) {
-    return this.userService.create(userDto);
+    const result = await this.userService.create(userDto);
+    if (result.getCode() === 0){
+      await this.mailService.sendWelcomeEmail(userDto.email,userDto.name,result.getData().token)
+    }
+    return result;
   }
 
   @Get('find-by-email/:email')
@@ -60,5 +65,17 @@ export class UsersController {
     @Body('role') role: UserRole,
   ) {
     return this.userService.updateUserRole(email, role);
+  }
+
+  @Get('verify-email/:token')
+  @ApiOperation({ summary: 'verify account' })
+  @ApiResponse({ status: 200, description: 'verify email.', type: ResponseDto })
+  @ApiResponse({
+    status: 404,
+    description: 'email not found.',
+    type: ResponseDto,
+  })
+  async verifyEmail(@Param('token') token: string) {
+    return this.userService.verifyEmail(token)
   }
 }
