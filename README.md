@@ -11,6 +11,8 @@
 4. prisma ORM操作数据库
 5. eslint 代码检测
 6. 代码自动化测试
+7. 接口访问频率(暂时用不使用redis实现)
+8. 定时删除任务
 
 ## Installation
 
@@ -51,6 +53,12 @@ $ pnpm run test:e2e
 # test coverage
 $ pnpm run test:cov
 ```
+
+
+## 开发
+
+1. @nestjs/throttler 模块限制用户短时间内重复请求验证邮件的频率
+2. @nestjs/schedule 模块定期清理
 
 ## License
 

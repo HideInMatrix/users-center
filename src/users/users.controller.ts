@@ -13,6 +13,7 @@ import { UserRole } from '@prisma/client';
 import { UsersDto } from './users.dto';
 import { ResponseDto } from '@/vo/response.dto';
 import { MailService } from '@/mail/mail.service';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiBearerAuth()
 @ApiTags('Users')
@@ -23,6 +24,7 @@ export class UsersController {
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' }) // 该接口的描述
   @ApiBody({ type: UsersDto }) // 请求体类型
+  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 60秒内最多3次请求
   @ApiResponse({
     status: 201,
     description: 'User successfully registered.',
